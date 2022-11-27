@@ -20,11 +20,11 @@ export default function LoginForm() {
   return (
     <>
       <Stack spacing={3}>
-        <TextField name="email" label="Email address" />
+        <TextField name="email" label="Email" />
 
         <TextField
           name="password"
-          label="Password"
+          label="Senha"
           type={showPassword ? 'text' : 'password'}
           InputProps={{
             endAdornment: (
@@ -38,15 +38,17 @@ export default function LoginForm() {
         />
       </Stack>
 
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
-        <Checkbox name="remember" label="Remember me" />
+      <Stack direction="column" alignItems="flex-end" justifyContent="flex-end" sx={{ my: 2 }}>
+        <Link variant="subtitle2" underline="hover" gutterBottom>
+          Esqueceu sua senha?
+        </Link>
         <Link variant="subtitle2" underline="hover">
-          Forgot password?
+          Não tem cadastro? Faça seu cadastro agora!
         </Link>
       </Stack>
 
       <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={handleClick}>
-        Login
+        Entrar
       </LoadingButton>
     </>
   );
