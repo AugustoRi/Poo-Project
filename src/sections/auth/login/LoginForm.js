@@ -9,6 +9,7 @@ import { LoadingButton } from '@mui/lab';
 import Iconify from '../../../components/iconify';
 
 import api from '../../../providers/services/api';
+import { useAuthContext } from '../../../hooks/useAuth';
 
 const InputField = ({ formik, name, label, type = "text", ...other }) => (
   <TextField
@@ -29,6 +30,8 @@ const InputField = ({ formik, name, label, type = "text", ...other }) => (
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
+  const { userData, getUserData, login } = useAuthContext();
+
   const formik = useFormik({
     initialValues: {
       username: '',
@@ -39,8 +42,16 @@ export default function LoginForm() {
       password: yup.string().max(255).required('Senha é obrigatória')
     }),
     onSubmit: async (values, { setErrors, setStatus, setSubmitting }) => {
+        // setStatus({ success: true });
+        // setSubmitting(false);
+        // navigate('/dashboard/app', { replace: true });
       try {
-        await api.post('/login/', values);
+
+        const response = await login(values);
+        if (response.status !== 202) {
+          return;
+        }
+        getUserData();
         setStatus({ success: true });
         setSubmitting(false);
         navigate('/dashboard/app', { replace: true });
