@@ -57,6 +57,10 @@ export default function AccountPopover() {
         <Avatar src={account.photoURL} alt="photoURL" />
       </IconButton>
 
+      <Typography variant="h5" color="#000" sx={{ ml: 1 }}>
+        Olá, {account.displayName}!
+      </Typography>
+
       <Popover
         open={Boolean(open)}
         anchorEl={open}

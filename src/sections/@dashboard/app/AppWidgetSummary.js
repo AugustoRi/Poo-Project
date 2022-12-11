@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { alpha, styled } from '@mui/material/styles';
 import { Card, Typography } from '@mui/material';
 // utils
-import { fShortenNumber } from '../../../utils/formatNumber';
+import { fCurrency } from '../../../utils/formatNumber';
 // components
 import Iconify from '../../../components/iconify';
 
@@ -30,37 +30,50 @@ AppWidgetSummary.propTypes = {
   sx: PropTypes.object,
 };
 
-export default function AppWidgetSummary({ title, total, icon, color = 'primary', sx, ...other }) {
+export default function AppWidgetSummary({ title, icon, total = 'default', color = 'primary', sx, ...other }) {
   return (
     <Card
       sx={{
         py: 5,
         boxShadow: 0,
-        textAlign: 'center',
+        textAlign: total === 'default' ? 'center' : 'left',
+        pl: total !== 'default' && 5,
         color: (theme) => theme.palette[color].darker,
         bgcolor: (theme) => theme.palette[color].lighter,
         ...sx,
       }}
       {...other}
     >
-      <StyledIcon
-        sx={{
-          color: (theme) => theme.palette[color].dark,
-          backgroundImage: (theme) =>
-            `linear-gradient(135deg, ${alpha(theme.palette[color].dark, 0)} 0%, ${alpha(
-              theme.palette[color].dark,
-              0.24
-            )} 100%)`,
-        }}
-      >
-        <Iconify icon={icon} width={24} height={24} />
-      </StyledIcon>
+      { total === 'default' ? (
+        <>        
+          <StyledIcon
+            sx={{
+              color: (theme) => theme.palette[color].dark,
+              backgroundImage: (theme) =>
+                `linear-gradient(135deg, ${alpha(theme.palette[color].dark, 0)} 0%, ${alpha(
+                  theme.palette[color].dark,
+                  0.24
+                )} 100%)`,
+            }}
+          >
+            <Iconify icon={icon} width={35} height={35} />
+          </StyledIcon>
+    
+          <Typography variant="h4" sx={{ opacity: 0.72 }}>
+            {title}
+          </Typography>
+        </>
+      ) : (
+        <>
+          <Typography component="h2" variant="subtitle1" sx={{ mb: 1 }}>
+            {title}
+          </Typography>
+          <Typography component="h1" variant="h3" sx={{ opacity: 0.72 }}>
+            {fCurrency(total)}
+          </Typography>
+        </>
+      )}
 
-      <Typography variant="h3">{fShortenNumber(total)}</Typography>
-
-      <Typography variant="subtitle2" sx={{ opacity: 0.72 }}>
-        {title}
-      </Typography>
     </Card>
   );
 }

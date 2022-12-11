@@ -6,6 +6,11 @@ import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import reportWebVitals from './reportWebVitals';
+import axios from 'axios';
+// import api from './providers/services/api';
+axios.defaults.withCredentials = true;
+axios.defaults.xsrfCookieName = 'csrftoken';
+axios.defaults.xsrfHeaderName = 'x-csrftoken';
 
 // ----------------------------------------------------------------------
 

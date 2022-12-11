@@ -1,35 +1,97 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
 // @mui
-import { Link, Stack, IconButton, InputAdornment, TextField, Checkbox } from '@mui/material';
+import { Link, Stack, IconButton, InputAdornment, TextField, Button } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // components
 import Iconify from '../../../components/iconify';
 
+import api from '../../../providers/services/api';
+import { useAuthContext } from '../../../hooks/useAuth';
+
+const InputField = ({ formik, name, label, type = "text", ...other }) => (
+  <TextField
+    fullWidth
+    type={type}
+    label={label}
+    value={formik.values[name]}
+    onChange={formik.handleChange}
+    onBlur={formik.handleBlur}
+    error={formik.touched[name] && Boolean(formik.errors[name])}
+    helperText={formik.touched[name] && formik.errors[name]}
+    margin="normal"
+    variant="outlined"
+    {...other}
+  />
+);
+
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
+  const { userData, getUserData, login } = useAuthContext();
+
+  const formik = useFormik({
+    initialValues: {
+      username: '',
+      password: ''
+    },
+    validationSchema: yup.object().shape({
+      username: yup.string().max(255).required('Usuário é obrigatório'),
+      password: yup.string().max(255).required('Senha é obrigatória')
+    }),
+    onSubmit: async (values, { setErrors, setStatus, setSubmitting }) => {
+        // setStatus({ success: true });
+        // setSubmitting(false);
+        // navigate('/dashboard/app', { replace: true });
+      try {
+
+        const response = await login(values);
+        if (response.status !== 202) {
+          return;
+        }
+        getUserData();
+        setStatus({ success: true });
+        setSubmitting(false);
+        navigate('/dashboard/app', { replace: true });
+      } catch (err) {
+        console.error(err);
+        setStatus({ success: false });
+        setErrors({ submit: err.message });
+        setSubmitting(false);
+      }
+    }
+  });
+
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleClick = () => {
-    navigate('/dashboard', { replace: true });
-  };
+  const handleRegister = () => {
+    navigate('/user/register', { replace: true });
+  }
 
   return (
-    <>
+    <form onSubmit={formik.handleSubmit}>
       <Stack spacing={3}>
-        <TextField name="email" label="Email address" />
+        <InputField
+          formik={formik}
+          id="username"
+          name="username"
+          label="Usuário"
+        />
 
-        <TextField
+        <InputField
+          formik={formik}
+          id="password"
           name="password"
-          label="Password"
+          label="Senha"
           type={showPassword ? 'text' : 'password'}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                <IconButton type="button" onClick={() => setShowPassword(!showPassword)} edge="end">
                   <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
                 </IconButton>
               </InputAdornment>
@@ -38,16 +100,18 @@ export default function LoginForm() {
         />
       </Stack>
 
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
-        <Checkbox name="remember" label="Remember me" />
-        <Link variant="subtitle2" underline="hover">
-          Forgot password?
+      <Stack direction="column" alignItems="flex-end" justifyContent="flex-end" sx={{ my: 2 }}>
+        <Link variant="subtitle2" underline="hover" gutterBottom sx={{ cursor: "pointer" }} >
+          Esqueceu sua senha?
+        </Link>
+        <Link variant="subtitle2" underline="hover" sx={{cursor: "pointer"}} onClick={handleRegister}>
+          Não tem cadastro? Faça seu cadastro agora!
         </Link>
       </Stack>
 
-      <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={handleClick}>
-        Login
-      </LoadingButton>
-    </>
+      <Button fullWidth size="large" type="submit" variant="contained">
+        Entrar
+      </Button>
+    </form>
   );
 }
